@@ -83,7 +83,7 @@ The benchmark has **33 labelled cases** across seven categories: normal, PII, ma
   - TC16, paraphrased injection
   - TC17, Spanish injection
   - TC29, negation flip
-- **Per category:** normal 5/5, invalid output 4/4, unsupported claim 4/5, PII 5/7, malicious 3/5, sensitive 3/4, output leak 2/3.
+- **Per category:** normal 5/5, invalid output 4/4, unsupported claim 4/5, PII 5/7, malicious 3/5, sensitive 3/4, output leak 3/3.
 
 **Live check with Gemini.** We ran the 22 cases whose LLM behaviour is "normal answer" against `gemini-3.5-flash-lite`. The result was **17/22**, with the same five input-side failures as the mock run (TC11, TC12, TC16, TC17, TC21). Every real Gemini answer passed schema, groundedness and sensitive-info checks on the first attempt. So on this sample, the output guards did not over-block real model output. The 11 scripted failure cases (malformed JSON, hallucinations, leaks) cannot be forced from a real model, so they are evaluated only with the mock. See [eval/results_live.md](../eval/results_live.md).
 
@@ -169,7 +169,7 @@ Most important remaining risks, in order:
 5. **Thin evidence.** 33 hand-written cases, a single-turn setting, and no measurement of latency or cost. The metrics are indicative, not statistically meaningful.
 6. **Operational concerns:**
    - The public-contact allowlist and the topic keyword lists need an owner.
-   - Free-tier Gemini quotas (5 requests/minute, 20/day for `gemini-2.5-flash`) are unsuitable for any real traffic.
+   - Free-tier Gemini quotas (a few requests per minute and a small daily cap for `gemini-3.5-flash-lite`) are unsuitable for any real traffic.
 
 **Verdict: not ready for deployment to customers.** It is suitable **only with restrictions**, as an internal prototype or a staff-facing assistant where a human reviews answers about fees and rates. Moving to a customer pilot would require:
 - an NLI-based groundedness check;

@@ -56,10 +56,10 @@ A free key is available from [Google AI Studio](https://aistudio.google.com/apik
 
 ```bash
 # Ask a question (Gemini). Prints status, response and the guard trace.
-python -m guardrails.pipeline "What is the overdraft fee?"
+python -m guardrails "What is the overdraft fee?"
 
 # Same, without an API key (deterministic mock)
-python -m guardrails.pipeline --mock "My email is jane@example.com, what is the ATM limit?"
+python -m guardrails --mock "My email is jane@example.com, what is the ATM limit?"
 ```
 
 Example output:
@@ -118,14 +118,40 @@ python -m eval.run_eval --live      # 22 cases against Gemini, writes eval/resul
 ## Project layout
 
 ```
-guardrails/
-  input/     pii.py  injection.py  topic.py
-  output/    schema.py  groundedness.py  sensitive.py
-  kb.py      8-entry bank FAQ (also the groundedness reference)
-  llm.py     MockLLM, ScriptedLLM, GeminiLLM
-  pipeline.py
-  result.py  GuardResult
-eval/        golden_benchmark.jsonl  run_eval.py  results.md  results_live.md
-tests/       unit tests per guard, pipeline and evaluation
-docs/        REPORT.md  architecture.md  design.md
+trustworthy-ai-guardrails/
+├── docs/
+│   ├── REPORT.md                 # Evaluation report: design, results, failures, trade-offs, risk
+│   ├── architecture.md           # Full pipeline diagram and stage-placement rationale
+│   └── design.md                 # Components, contracts, control flow and policy knobs
+├── guardrails/
+│   ├── input/
+│   │   ├── __init__.py
+│   │   ├── pii.py                # PII detection and redaction (regex + Luhn)
+│   │   ├── injection.py          # Prompt-injection scoring (weighted phrase patterns)
+│   │   └── topic.py              # Sensitive-topic routing (self-harm, fraud, legal/investment)
+│   ├── output/
+│   │   ├── __init__.py
+│   │   ├── schema.py             # JSON schema validation of the LLM output
+│   │   ├── groundedness.py       # Answer vs cited KB entries (word overlap + numbers)
+│   │   └── sensitive.py          # PII and internal-data leak scan
+│   ├── __main__.py               # CLI: python -m guardrails [--mock] "question"
+│   ├── kb.py                     # 8-entry bank FAQ and retrieval (also the groundedness reference)
+│   ├── llm.py                    # MockLLM, ScriptedLLM (tests) and GeminiLLM (live)
+│   ├── pipeline.py               # run(): guard order, retry and fallback, audit trace
+│   └── result.py                 # GuardResult, the common verdict type
+├── eval/
+│   ├── golden_benchmark.jsonl    # 33 labelled benchmark cases
+│   ├── run_eval.py               # Runs the benchmark and computes per-guard metrics
+│   ├── results.md                # Per-case results, mock LLM (deterministic)
+│   └── results_live.md           # Per-case results, Gemini
+├── tests/
+│   ├── test_input_guards.py      # Unit tests for input guards
+│   ├── test_output_guards.py     # Unit tests for output guards
+│   ├── test_pipeline.py          # End-to-end pipeline tests
+│   ├── test_llm.py               # MockLLM and KB retrieval tests
+│   ├── test_gemini.py            # .env loading and key errors (no network)
+│   └── test_eval.py              # Benchmark loading and metrics
+├── .env.example                  # Template for GEMINI_API_KEY
+├── pyproject.toml                # Package metadata and optional deps (dev, gemini)
+└── README.md
 ```

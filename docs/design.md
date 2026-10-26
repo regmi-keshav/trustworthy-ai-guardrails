@@ -22,7 +22,8 @@ How the guardrail pipeline is put together, the contracts between its parts, and
 | [guardrails/llm.py](../guardrails/llm.py) | `MockLLM` (scripted failure modes), `ScriptedLLM` (exact raw outputs) and `GeminiLLM` (live). |
 | [guardrails/input/](../guardrails/input/) | `check_pii`, `check_injection`, `check_topic`. |
 | [guardrails/output/](../guardrails/output/) | `check_schema`, `check_groundedness`, `check_sensitive_info`. |
-| [guardrails/pipeline.py](../guardrails/pipeline.py) | `run(user_input, llm) -> PipelineResult`: orders the guards, applies retry and fallback, builds the trace. Also the CLI. |
+| [guardrails/pipeline.py](../guardrails/pipeline.py) | `run(user_input, llm) -> PipelineResult`: orders the guards, applies retry and fallback, builds the trace. |
+| [guardrails/__main__.py](../guardrails/__main__.py) | CLI: `python -m guardrails [--mock] "question"` prints status, response and trace. |
 | [eval/run_eval.py](../eval/run_eval.py) | Runs the labelled benchmark and computes per-guard metrics. |
 
 ## Contracts
