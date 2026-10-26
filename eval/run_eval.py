@@ -9,6 +9,7 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+from guardrails.kb import KB
 from guardrails.llm import GeminiLLM, MockLLM, ScriptedLLM
 from guardrails.pipeline import run
 
@@ -86,13 +87,29 @@ def report(rows: list[dict]) -> str:
         out.append(f"| {cat} | {sum(ps)}/{len(ps)} |")
 
     out.append("\n## All cases\n")
-    out.append("| ID | Category | Input | Reference | Guard | Expected | Actual | Result |\n|---|---|---|---|---|---|---|---|")
+    out.append("Expected and actual are `status, whether the guard under test flagged`. "
+               "Reference ids are listed with their text at the end.\n")
+    out.append("| ID | Category | User input | LLM output under test | Reference | Guard | Expected | Actual | Actual response | Result |\n"
+               "|---|---|---|---|---|---|---|---|---|---|")
     for r in rows:
         exp = f"{r['expected_status']}, {'flag' if r['should_flag'] else 'no flag'}"
         act = f"{r['actual_status']}, {'flag' if r['flagged'] else 'no flag'}"
-        text = r["input"].replace("|", "\\|") + (f" _({r['note']})_" if r.get("note") else "")
-        out.append(f"| {r['id']} | {r['category']} | {text} | {', '.join(r['reference']) or '-'} | {r['guard']} | {exp} | {act} | {'PASS' if r['passed'] else '**FAIL**'} |")
+        text = r["input"] + (f" _({r['note']})_" if r.get("note") else "")
+        cells = [r["id"], r["category"], text, _llm_desc(r), ", ".join(r["reference"]) or "-", r["guard"],
+                 exp, act, r["response"], "PASS" if r["passed"] else "**FAIL**"]
+        out.append("| " + " | ".join(str(c).replace("|", "\\|").replace("\n", " ") for c in cells) + " |")
+
+    out.append("\n## Reference knowledge base\n")
+    out.append("| ID | Text |\n|---|---|")
+    out += [f"| {i} | {t} |" for i, t in KB.items()]
     return "\n".join(out) + "\n"
+
+
+def _llm_desc(r: dict) -> str:
+    """What the (simulated) LLM returned, so output-guard cases can be checked by eye."""
+    if "llm_outputs" in r:
+        return " → then ".join(f"`{o}`" for o in r["llm_outputs"])
+    return "normal answer" if r["llm_modes"] == ["good"] else "mock: " + " → then ".join(r["llm_modes"])
 
 
 if __name__ == "__main__":
