@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from src.kb import KB
-from src.output_guards import check_groundedness, check_schema, check_sensitive_info
+from guardrails.kb import KB
+from guardrails.output import check_groundedness, check_schema, check_sensitive_info
 
 REF = [KB["overdraft"]]
 

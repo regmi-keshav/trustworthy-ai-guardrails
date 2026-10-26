@@ -35,14 +35,17 @@ Regenerate at most once per request. If the output is still invalid, return a sa
 
 ## Layout
 ```
-src/input_guards.py  src/output_guards.py  src/pipeline.py  src/llm.py  src/kb.py
-tests/cases.py  tests/test_guardrails.py
-evaluate.py
-docs/ (architecture diagram, report)   README.md
+guardrails/  kb.py  llm.py  pipeline.py  result.py
+             input/   pii.py  injection.py  topic.py
+             output/  schema.py  groundedness.py  sensitive.py
+tests/       unit tests per guard + pipeline
+eval/        golden_benchmark.jsonl  run_eval.py  (results written to eval/results.md)
+docs/        design.md  REPORT.md
+README.md  pyproject.toml
 ```
 
 ## Evaluation
-`tests/cases.py` holds 24+ cases as data: input, reference info, expected behaviour, ground-truth label. Categories: normal, malicious, sensitive, invalid structure, unsupported claim. `evaluate.py` runs all, prints expected vs actual and pass/fail, and computes precision, recall, false positives and false negatives for guards with labels (PII, injection, topic, groundedness). Schema and sensitive-info cases are reported as pass/fail. The report also covers: ≥2 failure cases with cause/consequence/fix, safety-vs-usability trade-offs (one stricter-is-worse-for-usability, one looser-is-riskier), remaining risks and a deployment verdict.
+`eval/golden_benchmark.jsonl` holds 24+ cases as data: input, reference info, expected behaviour, ground-truth label. Categories: normal, malicious, sensitive, invalid structure, unsupported claim. `eval/run_eval.py` runs all, prints expected vs actual and pass/fail, and computes precision, recall, false positives and false negatives for guards with labels (PII, injection, topic, groundedness). Schema and sensitive-info cases are reported as pass/fail. The report also covers: ≥2 failure cases with cause/consequence/fix, safety-vs-usability trade-offs (one stricter-is-worse-for-usability, one looser-is-riskier), remaining risks and a deployment verdict.
 
 ## Build steps (one commit each)
 1. Spec + repo scaffold (this doc, `.gitignore`, README stub)

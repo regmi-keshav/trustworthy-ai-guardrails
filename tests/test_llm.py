@@ -1,7 +1,7 @@
 import json
 
-from src.kb import KB, retrieve
-from src.llm import MockLLM
+from guardrails.kb import KB, retrieve
+from guardrails.llm import MockLLM
 
 
 def test_retrieve_finds_relevant_entry():

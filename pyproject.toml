@@ -1,0 +1,14 @@
+[project]
+name = "trustworthy-ai-guardrails"
+version = "0.1.0"
+description = "Input and output guardrails for a bank customer-support FAQ bot"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+gemini = ["google-genai>=1.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

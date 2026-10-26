@@ -1,6 +1,6 @@
 import pytest
 
-from src.input_guards import check_injection, check_pii, check_topic
+from guardrails.input import check_injection, check_pii, check_topic
 
 
 @pytest.mark.parametrize("text,placeholder", [

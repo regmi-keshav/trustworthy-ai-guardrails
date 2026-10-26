@@ -1,10 +1,10 @@
 """Guardrail pipeline: input guards -> LLM -> output guards, with a full audit trace."""
 from dataclasses import dataclass, field
 
-from src.input_guards import check_injection, check_pii, check_topic
-from src.kb import KB, retrieve
-from src.output_guards import check_groundedness, check_schema, check_sensitive_info
-from src.result import GuardResult
+from guardrails.input import check_injection, check_pii, check_topic
+from guardrails.kb import KB, retrieve
+from guardrails.output import check_groundedness, check_schema, check_sensitive_info
+from guardrails.result import GuardResult
 
 MAX_ATTEMPTS = 2  # first try + one regeneration
 

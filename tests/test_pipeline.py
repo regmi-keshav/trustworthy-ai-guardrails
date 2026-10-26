@@ -1,7 +1,7 @@
 import json
 
-from src.llm import MockLLM
-from src.pipeline import run
+from guardrails.llm import MockLLM
+from guardrails.pipeline import run
 
 
 class Stub:
