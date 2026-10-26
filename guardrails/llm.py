@@ -2,6 +2,7 @@
 {"answer": str, "sources": [kb_id], "confidence": float}."""
 import json
 import os
+import time
 from pathlib import Path
 
 
@@ -81,13 +82,21 @@ class GeminiLLM:
     def generate(self, question: str, passages: list[tuple[str, str]]) -> str:
         from google.genai import types
 
+        from google.genai.errors import ClientError
+
         context = "\n".join(f"[{i}] {t}" for i, t in passages) or "(no passages found)"
-        resp = self.client.models.generate_content(
-            model=self.model,
-            contents=f"Reference passages:\n{context}\n\nCustomer question: {question}",
-            # JSON mode only, no response schema: the schema guard should still have real work to do.
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT, response_mime_type="application/json", temperature=0
-            ),
-        )
-        return resp.text or ""
+        for attempt in range(3):
+            try:
+                resp = self.client.models.generate_content(
+                    model=self.model,
+                    contents=f"Reference passages:\n{context}\n\nCustomer question: {question}",
+                    # JSON mode only, no response schema: the schema guard should still have real work to do.
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT, response_mime_type="application/json", temperature=0
+                    ),
+                )
+                return resp.text or ""
+            except ClientError as e:
+                if e.code != 429 or "PerDay" in str(e) or attempt == 2:  # daily cap: waiting won't help
+                    raise
+                time.sleep(40)  # free tier is 5 requests/minute; the API asks for ~40s back-off

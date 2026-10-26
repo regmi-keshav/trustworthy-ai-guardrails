@@ -1,12 +1,15 @@
 """Run the golden benchmark through the pipeline and write eval/results.md.
 
-Usage: python -m eval.run_eval
+Usage: python -m eval.run_eval          # offline, deterministic mock (the reported numbers)
+       python -m eval.run_eval --live   # real Gemini on cases with a normal answer -> eval/results_live.md
 """
 import json
+import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
-from guardrails.llm import MockLLM, ScriptedLLM
+from guardrails.llm import GeminiLLM, MockLLM, ScriptedLLM
 from guardrails.pipeline import run
 
 HERE = Path(__file__).parent
@@ -16,10 +19,18 @@ def load_cases(path: Path = HERE / "golden_benchmark.jsonl") -> list[dict]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def evaluate(cases: list[dict]) -> list[dict]:
+def evaluate(cases: list[dict], live: bool = False) -> list[dict]:
     rows = []
+    gemini = GeminiLLM() if live else None
     for c in cases:
-        llm = ScriptedLLM(*c["llm_outputs"]) if "llm_outputs" in c else MockLLM(*c["llm_modes"])
+        if live:
+            # scripted failures (malformed, hallucinated...) can't be forced on a real model
+            if c.get("llm_modes") != ["good"]:
+                continue
+            llm = gemini
+            time.sleep(13)  # free tier allows 5 requests/minute
+        else:
+            llm = ScriptedLLM(*c["llm_outputs"]) if "llm_outputs" in c else MockLLM(*c["llm_modes"])
         result = run(c["input"], llm)
         flagged = any(g.name == c["guard"] and g.flagged for g in result.trace)
         rows.append({
@@ -85,7 +96,8 @@ def report(rows: list[dict]) -> str:
 
 
 if __name__ == "__main__":
-    rows = evaluate(load_cases())
+    live = "--live" in sys.argv
+    rows = evaluate(load_cases(), live=live)
     md = report(rows)
-    (HERE / "results.md").write_text(md)
+    (HERE / ("results_live.md" if live else "results.md")).write_text(md)
     print(md)
