@@ -9,6 +9,7 @@ A 33-case labelled benchmark measures them, reporting precision, recall, false p
 
 - **Report:** [docs/REPORT.md](docs/REPORT.md) covers design, implementation choices, results, failure analysis, trade-offs and risk.
 - **Architecture:** [docs/architecture.md](docs/architecture.md)
+- **Design:** [docs/design.md](docs/design.md) covers components, contracts, control flow and policy knobs
 - **Per-case results:** [eval/results.md](eval/results.md) (mock) and [eval/results_live.md](eval/results_live.md) (Gemini)
 
 ## Architecture
