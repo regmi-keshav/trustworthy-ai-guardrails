@@ -28,3 +28,16 @@ class MockLLM:
         elif mode == "malformed":
             return "Sure! Here is the answer: " + answer
         return json.dumps(out)
+
+
+class ScriptedLLM:
+    """Returns the given raw outputs in order; the last repeats. Used for exact output-guard test cases."""
+
+    def __init__(self, *outputs: str):
+        self.outputs = outputs
+        self.calls = 0
+
+    def generate(self, question: str, passages: list[tuple[str, str]]) -> str:
+        out = self.outputs[min(self.calls, len(self.outputs) - 1)]
+        self.calls += 1
+        return out

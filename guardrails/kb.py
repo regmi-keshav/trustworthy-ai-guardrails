@@ -7,7 +7,7 @@ KB = {
     "savings_rate": "The savings account pays 2.5% annual interest, compounded monthly.",
     "card_lost": "If your card is lost or stolen, freeze it in the mobile app and call 1-800-555-0100.",
     "wire_fee": "Domestic wire transfers cost $25 and international wire transfers cost $45.",
-    "branch_hours": "Branches are open Monday to Friday, 9am to 5pm, and Saturday 9am to 1pm.",
+    "branch_hours": "Branch hours are Monday to Friday, 9am to 5pm, and Saturday 9am to 1pm.",
     "account_opening": "To open an account you need a valid government photo ID and a minimum deposit of $100.",
     "mortgage": "Fixed-rate mortgages require a 5% minimum down payment and a credit score of 620 or higher.",
 }
