@@ -8,3 +8,4 @@ class GuardResult:
     action: str = "allow"  # allow | redact | block | safe_response | escalate | disclaimer | regenerate | fallback
     detail: str = ""
     text: str | None = None  # sanitised text when the guard rewrites it
+    data: dict | None = None  # parsed payload (schema guard)
